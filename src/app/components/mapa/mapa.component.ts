@@ -53,7 +53,7 @@ export class MapaComponent implements OnInit {
 
     const dialogRef = this.dialog.open( MapaEditarComponent , {
       width: '250px',
-      data: { titulo: marcador.titulo, desc: marcador.desc }
+      data: { titulo: marcador.titulo, desc: marcador.desc, fecha: marcador.fecha }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -65,6 +65,7 @@ export class MapaComponent implements OnInit {
 
       marcador.titulo = result.titulo;
       marcador.desc = result.desc;
+      marcador.fecha = result.fecha;
 
       this.guardarStorage();
       this.snackBar.open('Marcador actualizado', 'Cerrar', { duration: 3000 });
