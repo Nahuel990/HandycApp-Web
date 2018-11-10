@@ -4,6 +4,8 @@ import { MatSnackBar } from '@angular/material';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { MapaEditarComponent } from './mapa-editar.component';
 
+import { AngularFireDatabase, AngularFireList  } from 'angularfire2/database';
+
 @Component({
   selector: 'app-mapa',
   templateUrl: './mapa.component.html',
@@ -12,22 +14,61 @@ import { MapaEditarComponent } from './mapa-editar.component';
 export class MapaComponent implements OnInit {
 
   marcadores: Marcador[] = [];
+  marcadoresDB: AngularFireList<any>;
 
   lat = -31.420390;
   lng = -64.188855;
 
   constructor( public snackBar: MatSnackBar,
-               public dialog: MatDialog ) {
+               public dialog: MatDialog,
+               private firebase: AngularFireDatabase) {
 
-    if ( localStorage.getItem('marcadores') ) {
+    if (localStorage.getItem('marcadores')) {
       this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
     }
 
   }
 
+  //Llamar metodo getDataDB y setear los datos en la clase para que se muestren
   ngOnInit() {
+    this.getDataDB();
+    console.log(this.getDataDB());
+      // .snapshotChanges()
+      // .subscribe(item => {
+      //   this.marcadores = [];
+      //   item.forEach(element => {
+      //     let x = element.payload.toJSON();
+      //     x["$key"] = element.key;
+      //     this.marcadores.push(x as Marcador);
+      //   })
+      // })
   }
 
+  //Obtener data de firebase y guardarlos en localstorage
+  getDataDB(){
+    return this.marcadoresDB = this.firebase.list('tesis-8376b');
+  }
+
+  //insertar en la base una vez que se haya agregado a localStorage
+  insertDataDB(marcador: Marcador){
+    this.marcadoresDB.push({
+      lat: marcador.lat,
+      lng: marcador.lng
+    }) 
+  }
+
+  //Actualizar dato en la base
+  updateDataDB(marcador: Marcador){
+    this.marcadoresDB.update("id marcador",{
+      lat: marcador.lat,
+      lng: marcador.lng
+    })
+  }
+
+  //Eliminar dato en al base
+  deleteDataDB($key: string){
+    this.marcadoresDB.remove($key);
+  }
 
   agregarMarcador( evento ) {
 
@@ -38,6 +79,7 @@ export class MapaComponent implements OnInit {
     this.marcadores.push( nuevoMarcador );
 
     this.guardarStorage();
+    this.insertDataDB(nuevoMarcador);
     this.snackBar.open('Marcador agregado', 'Cerrar', { duration: 3000 });
 
   }
