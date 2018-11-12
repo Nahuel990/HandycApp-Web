@@ -6,6 +6,8 @@ import { MapaEditarComponent } from './mapa-editar.component';
 
 import { AngularFireDatabase, AngularFireList  } from 'angularfire2/database';
 
+import { Router } from '@angular/router'
+
 @Component({
   selector: 'app-mapa',
   templateUrl: './mapa.component.html',
@@ -21,7 +23,8 @@ export class MapaComponent implements OnInit {
 
   constructor( public snackBar: MatSnackBar,
                public dialog: MatDialog,
-               private firebase: AngularFireDatabase) {
+               private firebase: AngularFireDatabase,
+               private router: Router) {
 
     if (localStorage.getItem('marcadores')) {
       this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
@@ -31,6 +34,7 @@ export class MapaComponent implements OnInit {
 
   //Llamar metodo getDataDB y setear los datos en la clase para que se muestren
   ngOnInit() {
+    this.checkLogin();
     this.getDataDB();
     console.log(this.getDataDB());
       // .snapshotChanges()
@@ -42,6 +46,12 @@ export class MapaComponent implements OnInit {
       //     this.marcadores.push(x as Marcador);
       //   })
       // })
+  }
+
+  checkLogin(){
+    if (!localStorage.getItem('userId')) {
+      this.router.navigate(['login']);
+    }
   }
 
   //Obtener data de firebase y guardarlos en localstorage
@@ -111,16 +121,11 @@ export class MapaComponent implements OnInit {
 
       this.guardarStorage();
       this.snackBar.open('Marcador actualizado', 'Cerrar', { duration: 3000 });
-
     });
-
   }
 
-
   guardarStorage() {
-
     localStorage.setItem('marcadores', JSON.stringify( this.marcadores ) );
-
   }
 
 }

@@ -18,6 +18,45 @@ import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { environment } from '../environments/environment';
 
+import {
+    SocialLoginModule,
+    AuthServiceConfig,
+    GoogleLoginProvider,
+    FacebookLoginProvider,
+} from "angular-6-social-login";
+
+import { SigninComponent } from './components/signin/signin.component';
+
+import { RouterModule, Routes } from '@angular/router';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+
+// Configs 
+export function getAuthServiceConfigs() {
+  let config = new AuthServiceConfig(
+      [
+        {
+          id: GoogleLoginProvider.PROVIDER_ID,
+          provider: new GoogleLoginProvider("325264672733-9bgahps9b8kdglhphgsgefb4g1lse207.apps.googleusercontent.com")
+        }
+      ]
+  );
+  return config;
+}
+
+const appRoutes: Routes = [
+  {
+    path: 'login',
+    component: SigninComponent,
+  },
+  { path: 'mapa',
+    component: MapaComponent,
+  },
+  { path: '**', component: PageNotFoundComponent },
+  { path: '',   redirectTo: '/login', pathMatch: 'full',
+ }
+
+];
+
 @NgModule({
   entryComponents: [
     MapaEditarComponent
@@ -25,7 +64,9 @@ import { environment } from '../environments/environment';
   declarations: [
     AppComponent,
     MapaComponent,
-    MapaEditarComponent
+    MapaEditarComponent,
+    SigninComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -39,8 +80,15 @@ import { environment } from '../environments/environment';
     // OwlNativeDateTimeModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
+    SocialLoginModule,
+    RouterModule.forRoot(appRoutes),
   ],
-  providers: [],
+  providers: [    
+    {
+      provide: AuthServiceConfig,
+      useFactory: getAuthServiceConfigs
+    }
+  ],
   bootstrap: [AppComponent]
 })
 
