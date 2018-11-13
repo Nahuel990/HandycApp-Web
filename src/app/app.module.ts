@@ -44,6 +44,7 @@ export function getAuthServiceConfigs() {
 }
 
 const appRoutes: Routes = [
+  { path: '',   redirectTo: '/login', pathMatch: 'full'},
   {
     path: 'login',
     component: SigninComponent,
@@ -52,9 +53,6 @@ const appRoutes: Routes = [
     component: MapaComponent,
   },
   { path: '**', component: PageNotFoundComponent },
-  { path: '',   redirectTo: '/login', pathMatch: 'full',
- }
-
 ];
 
 @NgModule({
