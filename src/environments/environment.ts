@@ -5,7 +5,7 @@
 
 export const environment = {
 	production: false,
-	firebase: {
+	firebaseConfig: {
 		apiKey: "AIzaSyAPod0Asu4T5q9ooarlUCylWpLGR9wr35w",
 		authDomain: "tesis-8376b.firebaseapp.com",
 		databaseURL: "https://tesis-8376b.firebaseio.com",

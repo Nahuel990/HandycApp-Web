@@ -76,7 +76,7 @@ const appRoutes: Routes = [
     }),
     // OwlDateTimeModule, 
     // OwlNativeDateTimeModule,
-    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireDatabaseModule,
     SocialLoginModule,
     RouterModule.forRoot(appRoutes),

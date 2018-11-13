@@ -4,9 +4,9 @@ import { MatSnackBar } from '@angular/material';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { MapaEditarComponent } from './mapa-editar.component';
 
-import { AngularFireDatabase, AngularFireList  } from 'angularfire2/database';
-
 import { Router } from '@angular/router'
+
+import { AngularFireDatabase, AngularFireList  } from 'angularfire2/database';
 
 @Component({
   selector: 'app-mapa',
@@ -24,7 +24,7 @@ export class MapaComponent implements OnInit {
   constructor( public snackBar: MatSnackBar,
                public dialog: MatDialog,
                private firebase: AngularFireDatabase,
-               private router: Router) {
+               private router: Router,) {
 
     if (localStorage.getItem('marcadores')) {
       this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
@@ -37,6 +37,7 @@ export class MapaComponent implements OnInit {
     this.checkLogin();
     this.getDataDB();
     console.log(this.getDataDB());
+      
       // .snapshotChanges()
       // .subscribe(item => {
       //   this.marcadores = [];
@@ -56,7 +57,8 @@ export class MapaComponent implements OnInit {
 
   //Obtener data de firebase y guardarlos en localstorage
   getDataDB(){
-    return this.marcadoresDB = this.firebase.list('tesis-8376b');
+    this.marcadoresDB = this.firebase.list('tesis-8376b');
+    return this.marcadoresDB.snapshotChanges();
   }
 
   //insertar en la base una vez que se haya agregado a localStorage
