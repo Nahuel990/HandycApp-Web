@@ -29,9 +29,9 @@ export class MapaComponent implements OnInit {
                private firebase: AngularFireDatabase,
                private router: Router,) {
 
-    if (localStorage.getItem('marcadores')) {
-      this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
-    }
+    // if (localStorage.getItem('marcadores')) {
+    //   this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
+    // }
   }
 
   //Limpiar objeto y Local Storage
@@ -70,6 +70,7 @@ export class MapaComponent implements OnInit {
     this.getDataDBInRoot();
     this.marcadoresObs = this.marcadoresDB.snapshotChanges();
     this.marcadoresObs.subscribe(items => {
+      this.marcadores = [];
       for (let i = 0; i < items.length; i++) {
         // console.log(items[i].payload.node_.children_.root_.left.key); //key lat
         // console.log(items[i].payload.node_.children_.root_.key); //key long
@@ -79,13 +80,13 @@ export class MapaComponent implements OnInit {
         var marcador = new Marcador(lat, lng, key);
         this.marcadores.push(marcador);
       }
+      console.log(this.marcadores);
     });
 
     //Para VALUECHANGES - Solo datos sin demas propiedades del nodo
 
-    // this.marcadoresObs = this.marcadoresDB.snapshotChanges();
+    // this.marcadoresObs = this.marcadoresDB.valueChanges();
     // this.marcadoresObs.subscribe(items => {
-    //   console.log(items);
     //   for (let i = 0; i < items.length; i++) {
     //     var lat = items[i].lat;
     //     var lng = items[i].long;
@@ -97,13 +98,12 @@ export class MapaComponent implements OnInit {
 
   //insertar en la base una vez que se haya agregado a localStorage
   insertDataDB(marcador: Marcador){
-    let now = new Date();
-    var fArr = now.toString().split(" ");
-    var fecha = fArr[0] + " " + fArr[1] + " " + fArr[2] + " " + fArr[4] + " " + "GMT-03:00" + " " + fArr[3];
-    console.log(marcador);
     // this.marcadoresDB = this.firebase.list(fecha.trim());
-    //RENOMBRAR LA KEY POR fecha
-    this.marcadoresDB = this.firebase.list('/');
+    //RENOMBRAR LA KEY POR fecha PARA INSERTAR EN LA BASE
+    if(!this.marcadoresDB){
+      this.marcadoresDB = this.getDataDBInRoot();
+    }
+    // this.marcadoresDB = this.firebase.list('/');
     this.marcadoresDB.push({
       lat: marcador.lat,
       long: marcador.lng
@@ -128,28 +128,32 @@ export class MapaComponent implements OnInit {
     //GUARDAR FECHA EN UN CAMPO DE LA CLASE MARCADOR
     //Y CON ESE CAMPO LLAMAR A LA BASE Y BUSCAR EL NODO CON ESA FECHA EN LA RAIZ
     //Verificar que traiga la data de la db
-    if(!this.marcadoresDB){
-      this.marcadoresDB = this.getDataDBInRoot();
+    if ($key != null){
+      if(!this.marcadoresDB){
+        this.marcadoresDB = this.getDataDBInRoot();
+      }
+      this.marcadoresDB.remove($key);
     }
-
-    this.marcadoresDB.remove($key);
   }
 
   agregarMarcador( evento ) {
+    let now = new Date();
+    var fArr = now.toString().split(" ");
+    var fecha = fArr[0] + " " + fArr[1] + " " + fArr[2] + " " + fArr[4] + " " + "GMT-03:00" + " " + fArr[3];
+
     const coords: { lat: number, lng: number } = evento.coords;
-    const nuevoMarcador = new Marcador( coords.lat, coords.lng );
+    const nuevoMarcador = new Marcador( coords.lat, coords.lng, fecha );
+
     this.marcadores.push( nuevoMarcador );
     this.guardarStorage();
-    this.insertDataDB(new Marcador( coords.lat, coords.lng ));
+    this.insertDataDB(nuevoMarcador);
     this.snackBar.open('Marcador agregado', 'Cerrar', { duration: 3000 });
   }
 
   borrarMarcador( i: number, marcador: Marcador ) {
     this.marcadores.splice(i, 1);
     this.guardarStorage();
-    console.log(marcador.fecha);
-    // return
-    // this.deleteDataDB(marcador.fecha);
+    this.deleteDataDB(marcador.fecha);
     this.snackBar.open('Marcador borrado', 'Cerrar', { duration: 3000 });
   }
 

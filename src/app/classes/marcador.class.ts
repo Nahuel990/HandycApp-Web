@@ -13,6 +13,7 @@ export class Marcador {
 
     public titulo = 'Título';
     public desc = '';
+
     public fecha = '';
 
     constructor( lat: number,  lng: number, fecha: string = '' ) {
