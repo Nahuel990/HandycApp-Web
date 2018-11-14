@@ -80,7 +80,7 @@ export class MapaComponent implements OnInit {
         var marcador = new Marcador(lat, lng, key);
         this.marcadores.push(marcador);
       }
-      console.log(this.marcadores);
+      // console.log(this.marcadores);
     });
 
     //Para VALUECHANGES - Solo datos sin demas propiedades del nodo
