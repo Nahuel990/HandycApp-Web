@@ -98,16 +98,16 @@ export class MapaComponent implements OnInit {
 
   //insertar en la base una vez que se haya agregado a localStorage
   insertDataDB(marcador: Marcador){
-    // this.marcadoresDB = this.firebase.list(fecha.trim());
     //RENOMBRAR LA KEY POR fecha PARA INSERTAR EN LA BASE
     if(!this.marcadoresDB){
       this.marcadoresDB = this.getDataDBInRoot();
     }
-    // this.marcadoresDB = this.firebase.list('/');
-    this.marcadoresDB.push({
+
+    this.marcadoresDB.set(marcador.fecha.toString(),
+    {
       lat: marcador.lat,
       long: marcador.lng
-    }) 
+    });
   }
 
   //Actualizar dato en la base
@@ -117,7 +117,7 @@ export class MapaComponent implements OnInit {
       this.marcadoresDB = this.getDataDBInRoot();
     }
 
-    this.marcadoresDB.update("id marcador",{
+    this.marcadoresDB.update(marcador.fecha,{
       lat: marcador.lat,
       lng: marcador.lng
     })
@@ -125,9 +125,6 @@ export class MapaComponent implements OnInit {
 
   //Eliminar dato en al base
   deleteDataDB($key: string){
-    //GUARDAR FECHA EN UN CAMPO DE LA CLASE MARCADOR
-    //Y CON ESE CAMPO LLAMAR A LA BASE Y BUSCAR EL NODO CON ESA FECHA EN LA RAIZ
-    //Verificar que traiga la data de la db
     if ($key != null){
       if(!this.marcadoresDB){
         this.marcadoresDB = this.getDataDBInRoot();
