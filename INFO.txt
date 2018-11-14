@@ -8,3 +8,5 @@ SINO COMPILA COMENTAR AngularFireDatabaseModule y arracnarlo Y LUEGO VOLVER A DE
 O PASAR ESA RESPUESTA DEL ANGULAR FIRE LIST A JSON PARA PSARLO AL CLIENTE
 
 //Llamar metodo getDataDB y setear los datos en la clase para que se muestren
+
+EL INSERT DEBE GENERAR DEN UEVO

@@ -20,7 +20,6 @@ export class MapaComponent implements OnInit {
   marcadores: Marcador[] = [];
   marcadoresDB: AngularFireList<any>;
   marcadoresObs: Observable<any[]>;
-  dataMarcadores: any[];
 
   lat = -31.420390;
   lng = -64.188855;
@@ -30,18 +29,19 @@ export class MapaComponent implements OnInit {
                private firebase: AngularFireDatabase,
                private router: Router,) {
 
-    //Setear lo que tiene getDataDBToJSON en localstoraGe
-
-    // for(let contact of this.getDataDBToJson()) {
-    //   console.log(contact); // Does not return anything
-    // }
-
     if (localStorage.getItem('marcadores')) {
       this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
     }
   }
 
-  ngOnInit() {
+  //Limpiar objeto y Local Storage
+  clearLocalData(){
+    this.marcadores = []; 
+    localStorage.clear();
+  }
+
+  ngOnInit() { 
+    // this.clearLocalData();
     // this.checkLogin();
     this.getDataDBToJsonAndSetInClass();
   }
@@ -68,7 +68,6 @@ export class MapaComponent implements OnInit {
         var lat = items[i].lat;
         var lng = items[i].lng;
         var marcador = new Marcador(parseFloat(lat.toString()), parseFloat(lng.toString()));
-        console.log(marcador);
         this.marcadores.push(marcador);
       }
     });
@@ -76,10 +75,16 @@ export class MapaComponent implements OnInit {
 
   //insertar en la base una vez que se haya agregado a localStorage
   insertDataDB(marcador: Marcador){
-    if(!this.marcadoresDB){
-      this.marcadoresDB = this.getDataDB();
-    }
+    //Verificar que traiga la data de la db
+    // if(!this.marcadoresDB){
+    //   this.marcadoresDB = this.getDataDB();
+    // }
 
+    let now = new Date();
+    var fArr = now.toString().split(" ");
+    var fecha = fArr[0] + " " + fArr[1] + " " + fArr[2] + " " + fArr[4] + " " + "GMT-03:00" + " " + fArr[3];
+    
+    this.marcadoresDB = this.firebase.list(fecha.trim());
     this.marcadoresDB.push({
       lat: marcador.lat,
       lng: marcador.lng
@@ -88,6 +93,11 @@ export class MapaComponent implements OnInit {
 
   //Actualizar dato en la base
   updateDataDB(marcador: Marcador){
+    //Verificar que traiga la data de la db
+    if(!this.marcadoresDB){
+      this.marcadoresDB = this.getDataDB();
+    }
+
     this.marcadoresDB.update("id marcador",{
       lat: marcador.lat,
       lng: marcador.lng
@@ -96,40 +106,37 @@ export class MapaComponent implements OnInit {
 
   //Eliminar dato en al base
   deleteDataDB($key: string){
+    //Verificar que traiga la data de la db
+    if(!this.marcadoresDB){
+      this.marcadoresDB = this.getDataDB();
+    }
+
     this.marcadoresDB.remove($key);
   }
 
   agregarMarcador( evento ) {
-
     const coords: { lat: number, lng: number } = evento.coords;
-
     const nuevoMarcador = new Marcador( coords.lat, coords.lng );
-
     this.marcadores.push( nuevoMarcador );
-
     this.guardarStorage();
     this.insertDataDB(new Marcador( coords.lat, coords.lng ));
     this.snackBar.open('Marcador agregado', 'Cerrar', { duration: 3000 });
-
   }
 
   borrarMarcador( i: number ) {
-
     this.marcadores.splice(i, 1);
     this.guardarStorage();
+    this.deleteDataDB(i.toString());
     this.snackBar.open('Marcador borrado', 'Cerrar', { duration: 3000 });
   }
 
   editarMarcador( marcador: Marcador ) {
-
     const dialogRef = this.dialog.open( MapaEditarComponent , {
       width: '250px',
       data: { titulo: marcador.titulo, desc: marcador.desc, fecha: marcador.fecha }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-
       if ( !result ) {
         return;
       }
@@ -146,5 +153,4 @@ export class MapaComponent implements OnInit {
   guardarStorage() {
     localStorage.setItem('marcadores', JSON.stringify( this.marcadores ) );
   }
-
 }
