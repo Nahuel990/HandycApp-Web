@@ -29,9 +29,9 @@ export class MapaComponent implements OnInit {
                private firebase: AngularFireDatabase,
                private router: Router,) {
 
-    // if (localStorage.getItem('marcadores')) {
-    //   this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
-    // }
+    if (localStorage.getItem('marcadores')) {
+      this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
+    }
   }
 
   //Limpiar objeto y Local Storage
@@ -42,7 +42,7 @@ export class MapaComponent implements OnInit {
 
   ngOnInit() { 
     // this.clearLocalData();
-    // this.checkLogin();
+    this.checkLogin();
     this.getDataDBToJsonAndSetInClass();
   }
 
@@ -98,12 +98,11 @@ export class MapaComponent implements OnInit {
 
   //insertar en la base una vez que se haya agregado a localStorage
   insertDataDB(marcador: Marcador){
-    //RENOMBRAR LA KEY POR fecha PARA INSERTAR EN LA BASE
     if(!this.marcadoresDB){
       this.marcadoresDB = this.getDataDBInRoot();
     }
 
-    this.marcadoresDB.set(marcador.fecha.toString(),
+    this.marcadoresDB.set(marcador.fecha.toString(), //Key = marcador.fecha
     {
       lat: marcador.lat,
       long: marcador.lng
