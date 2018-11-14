@@ -15,9 +15,10 @@ export class Marcador {
     public desc = '';
     public fecha = '';
 
-    constructor( lat: number,  lng: number ) {
+    constructor( lat: number,  lng: number, fecha: string = '' ) {
         this.lat = lat;
         this.lng = lng;
+        this.fecha = fecha;
     }
 
 }

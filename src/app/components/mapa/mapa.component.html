@@ -25,7 +25,7 @@
                         </p>
                         <div>
                             <button (click)="editarMarcador( marcador )" mat-raised-button color="primary">Editar</button>
-                            <button (click)="borrarMarcador(i)" mat-raised-button color="warn">Borrar</button>
+                            <button (click)="borrarMarcador(i, marcador)" mat-raised-button color="warn">Borrar</button>
                         </div>
 
                     </agm-info-window>
@@ -38,8 +38,4 @@
         </mat-card-content>
 
     </mat-card>
-
-   <!--  <ul *ngFor="let marcador of marcadoresDB | async">
-      <li> {{ marcador.lat}}:{{ marcador.long}} </li>
-    </ul> -->
 </div>

@@ -44,7 +44,6 @@ export class MapaComponent implements OnInit {
     // this.clearLocalData();
     // this.checkLogin();
     this.getDataDBToJsonAndSetInClass();
-    console.log(this.marcadores)
   }
 
   //Check login
@@ -69,16 +68,31 @@ export class MapaComponent implements OnInit {
   //Obtener data en Json basandose en marcadoresDB y setearla en la lista de marcadores
   getDataDBToJsonAndSetInClass(){
     this.getDataDBInRoot();
-    this.marcadoresObs = this.marcadoresDB.valueChanges();
+    this.marcadoresObs = this.marcadoresDB.snapshotChanges();
     this.marcadoresObs.subscribe(items => {
       for (let i = 0; i < items.length; i++) {
-        var lat = items[i].lat;
-        var lng = items[i].long;
-        console.log (items);
-        var marcador = new Marcador(lat, lng);
+        // console.log(items[i].payload.node_.children_.root_.left.key); //key lat
+        // console.log(items[i].payload.node_.children_.root_.key); //key long
+        var key = items[i].key;
+        var lat = items[i].payload.node_.children_.root_.left.value.value_;
+        var lng = items[i].payload.node_.children_.root_.value.value_;
+        var marcador = new Marcador(lat, lng, key);
         this.marcadores.push(marcador);
       }
     });
+
+    //Para VALUECHANGES - Solo datos sin demas propiedades del nodo
+
+    // this.marcadoresObs = this.marcadoresDB.snapshotChanges();
+    // this.marcadoresObs.subscribe(items => {
+    //   console.log(items);
+    //   for (let i = 0; i < items.length; i++) {
+    //     var lat = items[i].lat;
+    //     var lng = items[i].long;
+    //     var marcador = new Marcador(lat, lng);
+    //     this.marcadores.push(marcador);
+    //   }
+    // });
   }
 
   //insertar en la base una vez que se haya agregado a localStorage
@@ -92,7 +106,7 @@ export class MapaComponent implements OnInit {
     this.marcadoresDB = this.firebase.list('/');
     this.marcadoresDB.push({
       lat: marcador.lat,
-      lng: marcador.lng
+      long: marcador.lng
     }) 
   }
 
@@ -130,10 +144,12 @@ export class MapaComponent implements OnInit {
     this.snackBar.open('Marcador agregado', 'Cerrar', { duration: 3000 });
   }
 
-  borrarMarcador( i: number ) {
+  borrarMarcador( i: number, marcador: Marcador ) {
     this.marcadores.splice(i, 1);
     this.guardarStorage();
-    this.deleteDataDB(i.toString());
+    console.log(marcador.fecha);
+    // return
+    // this.deleteDataDB(marcador.fecha);
     this.snackBar.open('Marcador borrado', 'Cerrar', { duration: 3000 });
   }
 
