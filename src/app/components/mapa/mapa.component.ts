@@ -44,6 +44,7 @@ export class MapaComponent implements OnInit {
     // this.clearLocalData();
     // this.checkLogin();
     this.getDataDBToJsonAndSetInClass();
+    console.log(this.marcadores)
   }
 
   //Check login
@@ -53,21 +54,28 @@ export class MapaComponent implements OnInit {
     }
   }
 
-  //Obtener data de firebase
-  getDataDB(){
-    this.marcadoresDB = this.firebase.list('marcadores-web');
+  //Obtener data de firebase desde la raiz
+  getDataDBInRoot(){
+    this.marcadoresDB = this.firebase.list('/');
+    return this.marcadoresDB;
+  }
+
+  //Obtener data de firebase por nodo
+  getDataDBByNode(name_node: string){
+    this.marcadoresDB = this.firebase.list(name_node);
     return this.marcadoresDB;
   }
 
   //Obtener data en Json basandose en marcadoresDB y setearla en la lista de marcadores
   getDataDBToJsonAndSetInClass(){
-    this.getDataDB();
+    this.getDataDBInRoot();
     this.marcadoresObs = this.marcadoresDB.valueChanges();
     this.marcadoresObs.subscribe(items => {
       for (let i = 0; i < items.length; i++) {
         var lat = items[i].lat;
-        var lng = items[i].lng;
-        var marcador = new Marcador(parseFloat(lat.toString()), parseFloat(lng.toString()));
+        var lng = items[i].long;
+        console.log (items);
+        var marcador = new Marcador(lat, lng);
         this.marcadores.push(marcador);
       }
     });
@@ -75,16 +83,13 @@ export class MapaComponent implements OnInit {
 
   //insertar en la base una vez que se haya agregado a localStorage
   insertDataDB(marcador: Marcador){
-    //Verificar que traiga la data de la db
-    // if(!this.marcadoresDB){
-    //   this.marcadoresDB = this.getDataDB();
-    // }
-
     let now = new Date();
     var fArr = now.toString().split(" ");
     var fecha = fArr[0] + " " + fArr[1] + " " + fArr[2] + " " + fArr[4] + " " + "GMT-03:00" + " " + fArr[3];
-    
-    this.marcadoresDB = this.firebase.list(fecha.trim());
+    console.log(marcador);
+    // this.marcadoresDB = this.firebase.list(fecha.trim());
+    //RENOMBRAR LA KEY POR fecha
+    this.marcadoresDB = this.firebase.list('/');
     this.marcadoresDB.push({
       lat: marcador.lat,
       lng: marcador.lng
@@ -95,7 +100,7 @@ export class MapaComponent implements OnInit {
   updateDataDB(marcador: Marcador){
     //Verificar que traiga la data de la db
     if(!this.marcadoresDB){
-      this.marcadoresDB = this.getDataDB();
+      this.marcadoresDB = this.getDataDBInRoot();
     }
 
     this.marcadoresDB.update("id marcador",{
@@ -106,9 +111,11 @@ export class MapaComponent implements OnInit {
 
   //Eliminar dato en al base
   deleteDataDB($key: string){
+    //GUARDAR FECHA EN UN CAMPO DE LA CLASE MARCADOR
+    //Y CON ESE CAMPO LLAMAR A LA BASE Y BUSCAR EL NODO CON ESA FECHA EN LA RAIZ
     //Verificar que traiga la data de la db
     if(!this.marcadoresDB){
-      this.marcadoresDB = this.getDataDB();
+      this.marcadoresDB = this.getDataDBInRoot();
     }
 
     this.marcadoresDB.remove($key);
