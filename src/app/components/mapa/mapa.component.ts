@@ -6,7 +6,9 @@ import { MapaEditarComponent } from './mapa-editar.component';
 
 import { Router } from '@angular/router'
 
-import { AngularFireDatabase, AngularFireList  } from 'angularfire2/database';
+import { Observable } from 'rxjs';
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+
 
 @Component({
   selector: 'app-mapa',
@@ -17,6 +19,8 @@ export class MapaComponent implements OnInit {
 
   marcadores: Marcador[] = [];
   marcadoresDB: AngularFireList<any>;
+  marcadoresObs: Observable<any[]>;
+  dataMarcadores: any[];
 
   lat = -31.420390;
   lng = -64.188855;
@@ -26,43 +30,56 @@ export class MapaComponent implements OnInit {
                private firebase: AngularFireDatabase,
                private router: Router,) {
 
+    //Setear lo que tiene getDataDBToJSON en localstoraGe
+
+    // for(let contact of this.getDataDBToJson()) {
+    //   console.log(contact); // Does not return anything
+    // }
+
     if (localStorage.getItem('marcadores')) {
       this.marcadores = JSON.parse(localStorage.getItem('marcadores'));
     }
-
   }
 
-  //Llamar metodo getDataDB y setear los datos en la clase para que se muestren
   ngOnInit() {
-    this.checkLogin();
-    this.getDataDB();
-    console.log(this.getDataDB());
-      
-      // .snapshotChanges()
-      // .subscribe(item => {
-      //   this.marcadores = [];
-      //   item.forEach(element => {
-      //     let x = element.payload.toJSON();
-      //     x["$key"] = element.key;
-      //     this.marcadores.push(x as Marcador);
-      //   })
-      // })
+    // this.checkLogin();
+    this.getDataDBToJsonAndSetInClass();
   }
 
+  //Check login
   checkLogin(){
     if (!localStorage.getItem('userId')) {
       this.router.navigate(['login']);
     }
   }
 
-  //Obtener data de firebase y guardarlos en localstorage
+  //Obtener data de firebase
   getDataDB(){
-    this.marcadoresDB = this.firebase.list('tesis-8376b');
-    return this.marcadoresDB.snapshotChanges();
+    this.marcadoresDB = this.firebase.list('marcadores-web');
+    return this.marcadoresDB;
+  }
+
+  //Obtener data en Json basandose en marcadoresDB y setearla en la lista de marcadores
+  getDataDBToJsonAndSetInClass(){
+    this.getDataDB();
+    this.marcadoresObs = this.marcadoresDB.valueChanges();
+    this.marcadoresObs.subscribe(items => {
+      for (let i = 0; i < items.length; i++) {
+        var lat = items[i].lat;
+        var lng = items[i].lng;
+        var marcador = new Marcador(parseFloat(lat.toString()), parseFloat(lng.toString()));
+        console.log(marcador);
+        this.marcadores.push(marcador);
+      }
+    });
   }
 
   //insertar en la base una vez que se haya agregado a localStorage
   insertDataDB(marcador: Marcador){
+    if(!this.marcadoresDB){
+      this.marcadoresDB = this.getDataDB();
+    }
+
     this.marcadoresDB.push({
       lat: marcador.lat,
       lng: marcador.lng
@@ -91,7 +108,7 @@ export class MapaComponent implements OnInit {
     this.marcadores.push( nuevoMarcador );
 
     this.guardarStorage();
-    this.insertDataDB(nuevoMarcador);
+    this.insertDataDB(new Marcador( coords.lat, coords.lng ));
     this.snackBar.open('Marcador agregado', 'Cerrar', { duration: 3000 });
 
   }
